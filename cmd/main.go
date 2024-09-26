@@ -48,19 +48,9 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/users", userHandler.CreateUser)
-
-	router.GET("/dictionaries", dictionaryHandler.GetAllDictionaries)
-	router.GET("/dictionaries/:id", dictionaryHandler.GetDictionaryByID)
-	router.POST("/dictionaries", dictionaryHandler.CreateDictionary)
-	router.PUT("/dictionaries/:id", dictionaryHandler.UpdateDictionary)
-	router.DELETE("/dictionaries/:id", dictionaryHandler.DeleteDictionary)
-
-	router.GET("/words", wordHandler.GetAllWords)
-	router.GET("/words/:id", wordHandler.GetWordByID)
-	router.POST("/words", wordHandler.CreateWord)
-	router.PUT("/words/:id", wordHandler.UpdateWord)
-	router.DELETE("/words/:id", wordHandler.DeleteWord)
+	userHandler.InitRoutes(router)
+	dictionaryHandler.InitRoutes(router)
+	wordHandler.InitRoutes(router)
 
 	router.Run(":8080")
 }
