@@ -20,6 +20,10 @@ func NewUserHandler(users Users) *UserHandler {
 	}
 }
 
+func (uh *UserHandler) InitRoutes(router *gin.Engine) {
+	router.POST("/users", uh.CreateUser)
+}
+
 func (uh *UserHandler) CreateUser(c *gin.Context) {
 	var user domain.User
 	if err := c.ShouldBindJSON(&user); err != nil {

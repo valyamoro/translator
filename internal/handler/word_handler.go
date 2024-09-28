@@ -25,6 +25,14 @@ func NewWordHandler(words Words) *WordHandler {
 	}
 }
 
+func (wh *WordHandler) InitRoutes(router *gin.Engine) {
+	router.GET("/words", wh.GetAllWords)
+	router.GET("/words/:id", wh.GetWordByID)
+	router.POST("/words", wh.CreateWord)
+	router.PUT("/words/:id", wh.UpdateWord)
+	router.DELETE("/words/:id", wh.DeleteWord)
+}
+
 func (wh *WordHandler) CreateWord(c *gin.Context) {
 	var word domain.Word
 	if err := c.ShouldBindJSON(&word); err != nil {

@@ -25,6 +25,14 @@ func NewDictionaryHandler(dictionaries Dictionaries) *DictionaryHandler {
 	}
 }
 
+func (dh *DictionaryHandler) InitRoutes(router *gin.Engine) {
+	router.GET("/dictionaries", dh.GetAllDictionaries)
+	router.GET("/dictionaries/:id", dh.GetDictionaryByID)
+	router.POST("/dictionaries", dh.CreateDictionary)
+	router.PUT("/dictionaries/:id", dh.UpdateDictionary)
+	router.DELETE("/dictionaries/:id", dh.DeleteDictionary)
+}
+
 func (dh *DictionaryHandler) CreateDictionary(c *gin.Context) {
 	var dictionary domain.Dictionary
 	if err := c.ShouldBindJSON(&dictionary); err != nil {
