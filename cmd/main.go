@@ -2,22 +2,32 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+
 	"github.com/valyamoro/internal/handler"
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
-	"os"
-	"strconv"
 )
 
 func main() {
-	host := os.Getenv("DB_HOST")
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	username := os.Getenv("DB_USERNAME")
-	dbName := os.Getenv("DB_NAME")
-	sslMode := os.Getenv("DB_SSLMODE")
-	password := os.Getenv("DB_PASSWORD")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Ошибка чтения конфигурационного файла: %v", err)
+	}
+
+	host := viper.GetString("DB_HOST")
+	port := viper.GetInt("DB_PORT")
+	username := viper.GetString("DB_USERNAME")
+	dbName := viper.GetString("DB_NAME")
+	sslMode := viper.GetString("DB_SSLMODE")
+	password := viper.GetString("DB_PASSWORD")
 
 	db, err := database.NewPostgresConnection(database.ConnectionParams{
 		Host:     host,
