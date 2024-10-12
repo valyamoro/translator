@@ -2,23 +2,25 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/valyamoro/internal/handler"
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
-	"os"
-	"strconv"
 )
 
 func main() {
 	host := os.Getenv("DB_HOST")
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	username := os.Getenv("DB_USERNAME")
+	username := os.Getenv("DB_USER")
 	dbName := os.Getenv("DB_NAME")
 	sslMode := os.Getenv("DB_SSLMODE")
 	password := os.Getenv("DB_PASSWORD")
-
+	
 	db, err := database.NewPostgresConnection(database.ConnectionParams{
 		Host:     host,
 		Port:     port,
