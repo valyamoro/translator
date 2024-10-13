@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -13,32 +13,18 @@ import (
 	"github.com/valyamoro/pkg/database"
 )
 
+
 func main() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	initConfig()
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Ошибка чтения конфигурационного файла: %v", err)
 	}
 
-	host := viper.GetString("DB_HOST")
-	port := viper.GetInt("DB_PORT")
-	username := viper.GetString("DB_USERNAME")
-	dbName := viper.GetString("DB_NAME")
-	sslMode := viper.GetString("DB_SSLMODE")
-	password := viper.GetString("DB_PASSWORD")
+	db, err := initDB()
 
-	db, err := database.NewPostgresConnection(database.ConnectionParams{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		DBName:   dbName,
-		SSLMode:  sslMode,
-		Password: password,
-	})
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
 
@@ -63,4 +49,28 @@ func main() {
 	wordHandler.InitRoutes(router)
 
 	router.Run(":8080")
+}
+
+func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+}
+
+func initDB() (*sql.DB, error) {
+	host := viper.GetString("DB_HOST")
+	port := viper.GetInt("DB_PORT")
+	username := viper.GetString("DB_USERNAME")
+	dbName := viper.GetString("DB_NAME")
+	sslMode := viper.GetString("DB_SSLMODE")
+	password := viper.GetString("DB_PASSWORD")
+
+	return database.NewPostgresConnection(database.ConnectionParams{
+		Host:     host,
+		Port:     port,
+		Username: username,
+		DBName:   dbName,
+		SSLMode:  sslMode,
+		Password: password,
+	})
 }
