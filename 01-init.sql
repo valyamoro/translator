@@ -19,8 +19,3 @@ CREATE TABLE IF NOT EXISTS words (
     word_language_code INT,
     translation_word_language_code INT
 );
-
-INSERT INTO users (username, password) VALUES ('testuser', 'password123');
-INSERT INTO dictionaries (name, description, user_id) VALUES ('My Dictionary', 'A test dictionary', 1);
-INSERT INTO words (word, translation_word, dictionary_id, word_language_code, translation_word_language_code)
-VALUES ('Hel2l22222o', 'Привет2', 1, 1, 2);
