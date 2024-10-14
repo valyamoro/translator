@@ -12,6 +12,7 @@ import (
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
+	"path/filepath"
 
 	"strconv"
 )
@@ -50,7 +51,14 @@ func main() {
 }
 
 func initConfig() {
-	if err := godotenv.Load(); err != nil {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Не удалось получить текущую директорию: %v", err)
+	}
+
+	envPath := filepath.Join(currentDir, ".env")
+
+	if err := godotenv.Load(envPath); err != nil {
 		log.Fatalf("Ошибка загрузки файла .env: %v", err)
 	}
 }
