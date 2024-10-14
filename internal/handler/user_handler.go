@@ -11,6 +11,7 @@ import (
 
 type Users interface {
 	Create(user domain.User) (domain.User, error)
+	Authenticate(username, password string) (bool, error)
 }
 
 type UserHandler struct {
@@ -24,11 +25,11 @@ func NewUserHandler(users Users) *UserHandler {
 }
 
 func (uh *UserHandler) InitRoutes(router *gin.Engine) {
-	router.POST("/create", uh.CreateUser)
+	router.POST("/users", uh.CreateUser)
 	router.POST("/login", uh.Login)
 }
 
-func (h *UserHandler) Login(c *gin.Context) {
+func (uh *UserHandler) Login(c *gin.Context) {
     var loginData struct {
         Username string `json:"username"`
         Password string `json:"password"`
@@ -39,6 +40,11 @@ func (h *UserHandler) Login(c *gin.Context) {
         return
     }
 
+	isAuth, _ := uh.UsersService.Authenticate(loginData.Username, loginData.Password)
+	if !isAuth {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect credentials"})
+        return
+	}
     token, err := jwt.GenerateJWT(loginData.Username)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
