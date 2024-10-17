@@ -1,34 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
+	"log"
+
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+
 	"github.com/valyamoro/internal/handler"
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
-	"os"
-	"strconv"
 )
 
 func main() {
-	host := os.Getenv("DB_HOST")
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	username := os.Getenv("DB_USERNAME")
-	dbName := os.Getenv("DB_NAME")
-	sslMode := os.Getenv("DB_SSLMODE")
-	password := os.Getenv("DB_PASSWORD")
+	if err := initConfig(); err != nil {
+		log.Fatalf("Ошибка инициализации конфигурации: %v", err)
+		return
+	}
 
-	db, err := database.NewPostgresConnection(database.ConnectionParams{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		DBName:   dbName,
-		SSLMode:  sslMode,
-		Password: password,
-	})
+	db, err := initDB()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
 
@@ -52,5 +45,37 @@ func main() {
 	dictionaryHandler.InitRoutes(router)
 	wordHandler.InitRoutes(router)
 
-	router.Run(":8080")
+	router.Run(":" + viper.GetString("PORT"))
+}
+
+func initConfig() error {
+    viper.SetConfigFile(".env")
+    viper.AddConfigPath("../") 
+    viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+
+    if err := viper.ReadInConfig(); err != nil {
+        log.Printf("Не удалось найти конфиг: %v", err)
+        return err
+    }
+
+    return nil
+}
+
+func initDB() (*sql.DB, error) {
+	host := viper.GetString("DB_HOST")
+	port := viper.GetInt("DB_PORT")
+	username := viper.GetString("DB_USERNAME")
+	dbName := viper.GetString("DB_NAME")
+	sslMode := viper.GetString("DB_SSLMODE")
+	password := viper.GetString("DB_PASSWORD")
+
+	return database.NewPostgresConnection(database.ConnectionParams{
+		Host:     host,
+		Port:     port,
+		Username: username,
+		DBName:   dbName,
+		SSLMode:  sslMode,
+		Password: password,
+	})
 }
