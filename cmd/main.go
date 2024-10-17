@@ -3,23 +3,21 @@ package main
 import (
 	"database/sql"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 
 	"github.com/valyamoro/internal/handler"
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
-	"path/filepath"
-
-	"strconv"
 )
 
-
 func main() {
-	initConfig()
+	if err := initConfig(); err != nil {
+		log.Fatalf("Ошибка инициализации конфигурации: %v", err)
+		return
+	}
 
 	db, err := initDB()
 	if err != nil {
@@ -47,29 +45,30 @@ func main() {
 	dictionaryHandler.InitRoutes(router)
 	wordHandler.InitRoutes(router)
 
-	router.Run(":" + os.Getenv("PORT"))
+	router.Run(":" + viper.GetString("PORT"))
 }
 
-func initConfig() {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Не удалось получить текущую директорию: %v", err)
-	}
+func initConfig() error {
+    viper.SetConfigFile(".env")
+    viper.AddConfigPath("../") 
+    viper.AddConfigPath(".")
+	viper.AutomaticEnv()
 
-	envPath := filepath.Join(currentDir, ".env")
+    if err := viper.ReadInConfig(); err != nil {
+        log.Printf("Не удалось найти конфиг: %v", err)
+        return err
+    }
 
-	if err := godotenv.Load(envPath); err != nil {
-		log.Fatalf("Ошибка загрузки файла .env: %v", err)
-	}
+    return nil
 }
 
 func initDB() (*sql.DB, error) {
-	host := os.Getenv("DB_HOST")
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	username := os.Getenv("DB_USERNAME")
-	dbName := os.Getenv("DB_NAME")
-	sslMode := os.Getenv("DB_SSLMODE")
-	password := os.Getenv("DB_PASSWORD")
+	host := viper.GetString("DB_HOST")
+	port := viper.GetInt("DB_PORT")
+	username := viper.GetString("DB_USERNAME")
+	dbName := viper.GetString("DB_NAME")
+	sslMode := viper.GetString("DB_SSLMODE")
+	password := viper.GetString("DB_PASSWORD")
 
 	return database.NewPostgresConnection(database.ConnectionParams{
 		Host:     host,
