@@ -4,6 +4,7 @@ import "github.com/valyamoro/internal/domain"
 
 type UsersRepository interface {
 	Create(user domain.User) (domain.User, error)
+	GetByUsername(username string) (domain.User, error)
 }
 
 type Users struct {
@@ -18,4 +19,8 @@ func NewUsersService(repo UsersRepository) *Users {
 
 func (u *Users) Create(user domain.User) (domain.User, error) {
 	return u.repo.Create(user)
+}
+
+func (u *Users) GetByUsername(username string) (domain.User, error) {
+	return u.repo.GetByUsername(username)
 }

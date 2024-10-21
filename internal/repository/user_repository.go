@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"github.com/valyamoro/internal/domain"
+	"errors"
 )
 
 type Users struct {
@@ -22,6 +23,21 @@ func (u *Users) Create(user domain.User) (domain.User, error) {
 
 	if err != nil {
 		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
+func (u *Users) GetByUsername(username string) (domain.User, error) {
+	var user domain.User 
+	err := u.db.QueryRow(`SELECT id, username, password FROM users WHERE username=$1`, username). 
+		Scan(
+			&user.ID,
+			&user.Username,
+			&user.Password,
+		)
+	if errors.Is(err, sql.ErrNoRows) {
+		return user, err 
 	}
 
 	return user, nil

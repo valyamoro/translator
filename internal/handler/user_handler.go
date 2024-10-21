@@ -13,6 +13,7 @@ import (
 
 type Users interface {
 	Create(user domain.User) (domain.User, error)
+	GetByUsername(username string) (domain.User, error)
 }
 
 type UserHandler struct {
@@ -25,10 +26,24 @@ func NewUserHandler(users Users) *UserHandler {
 
 	v.RegisterValidation("passwd", validatePassword)
 
-	return &UserHandler{
+	uh := &UserHandler{
 		UsersService: users,
 		Validator: v,
 	}
+	v.RegisterValidation("exists_user", uh.userExists)
+
+	return uh
+}
+
+func (uh *UserHandler) userExists(fl validator.FieldLevel) bool {
+    username := fl.Field().String()
+    _, err := uh.UsersService.GetByUsername(username)
+
+    if err == nil {
+        return false 
+    }
+
+    return false 
 }
 
 func (uh *UserHandler) InitRoutes(router *gin.Engine) {
@@ -45,6 +60,7 @@ func validatePassword(fl validator.FieldLevel) bool {
 
 	return hasUpper && hasLower && hasNumber && hasSpecial
 }
+
 
 func (uh *UserHandler) CreateUser(c *gin.Context) {
 	var user domain.User

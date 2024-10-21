@@ -52,5 +52,5 @@ func main() {
 	dictionaryHandler.InitRoutes(router)
 	wordHandler.InitRoutes(router)
 
-	router.Run(":8081")
+	router.Run(":8082")
 }
