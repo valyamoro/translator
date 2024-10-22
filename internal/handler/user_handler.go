@@ -23,14 +23,14 @@ type UserHandler struct {
 
 func NewUserHandler(users Users) *UserHandler {
 	v := validator.New()
-
-	v.RegisterValidation("passwd", validatePassword)
-
+	
 	uh := &UserHandler{
 		UsersService: users,
 		Validator: v,
 	}
+	
 	v.RegisterValidation("exists_user", uh.userExists)
+	v.RegisterValidation("passwd", validatePassword)
 
 	return uh
 }
