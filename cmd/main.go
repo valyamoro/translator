@@ -18,6 +18,7 @@ func main() {
 	dbName := os.Getenv("DB_NAME")
 	sslMode := os.Getenv("DB_SSLMODE")
 	password := os.Getenv("DB_PASSWORD")
+	fmt.Println(username)
 
 	db, err := database.NewPostgresConnection(database.ConnectionParams{
 		Host:     host,

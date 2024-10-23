@@ -1,9 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/valyamoro/internal/domain"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/valyamoro/internal/constants"
+	"github.com/valyamoro/internal/domain"
 )
 
 type Words interface {
@@ -17,11 +20,30 @@ type Words interface {
 type WordHandler struct {
 	BaseHandler
 	wordsService Words
+	Validator    *validator.Validate
 }
 
 func NewWordHandler(words Words) *WordHandler {
-	return &WordHandler{
+	v := validator.New()
+
+	wh := &WordHandler{
 		wordsService: words,
+		Validator:    v,
+	}
+
+	v.RegisterValidation("language", isValidLanguage)
+
+	return wh
+}
+
+func isValidLanguage(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+
+	switch constants.Language(value) {
+	case constants.Russian, constants.English:
+		return true 
+	default:
+		return false
 	}
 }
 
@@ -40,6 +62,11 @@ func (wh *WordHandler) CreateWord(c *gin.Context) {
 		return
 	}
 
+	if err := wh.Validator.Struct(word); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
 	_, err := wh.wordsService.Create(word)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
