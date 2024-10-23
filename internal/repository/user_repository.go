@@ -42,3 +42,18 @@ func (u *Users) GetByUsername(username string) (domain.User, error) {
 
 	return user, nil
 }
+
+func (u *Users) GetByID(id int) (domain.User, error) {
+	var user domain.User 
+	err := u.db.QueryRow(`SELECT id, username, password FROM users WHERE id=$1`, id). 
+		Scan(
+			&user.ID,
+			&user.Password,
+			&user.Password,
+		)
+	if errors.Is(err, sql.ErrNoRows) {
+		return user, err 
+	}
+
+	return user, nil
+}
