@@ -19,15 +19,21 @@ type DictionaryHandler struct {
 	BaseHandler
 	Validator *validator.Validate
 	dictionariesService Dictionaries
+	usersService Users
 }
 
-func NewDictionaryHandler(dictionaries Dictionaries) *DictionaryHandler {
+func NewDictionaryHandler(dictionaries Dictionaries, users Users) *DictionaryHandler {
 	v := validator.New()
 
-	return &DictionaryHandler{
+	dh := &DictionaryHandler{
 		dictionariesService: dictionaries,
+		usersService: users,
 		Validator: v,
 	}
+
+	v.RegisterValidation("user_exists", dh.userExists)
+
+	return dh 
 }
 
 func (dh *DictionaryHandler) InitRoutes(router *gin.Engine) {
@@ -36,6 +42,17 @@ func (dh *DictionaryHandler) InitRoutes(router *gin.Engine) {
 	router.POST("/dictionaries", dh.CreateDictionary)
 	router.PUT("/dictionaries/:id", dh.UpdateDictionary)
 	router.DELETE("/dictionaries/:id", dh.DeleteDictionary)
+}
+
+func (dh *DictionaryHandler) userExists(fl validator.FieldLevel) bool {
+	value := fl.Field().Int()
+
+	_, err := dh.usersService.GetByID(int(value))
+	if err == nil {
+		return true 
+	} else {
+		return false
+	}
 }
 
 func (dh *DictionaryHandler) CreateDictionary(c *gin.Context) {
