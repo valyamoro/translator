@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/valyamoro/internal/constants"
 	"github.com/valyamoro/internal/domain"
+	"regexp"
 )
 
 type Words interface {
@@ -20,18 +21,22 @@ type Words interface {
 type WordHandler struct {
 	BaseHandler
 	wordsService Words
+	dictionaryService Dictionaries
 	Validator    *validator.Validate
 }
 
-func NewWordHandler(words Words) *WordHandler {
+func NewWordHandler(words Words, dictionaries Dictionaries) *WordHandler {
 	v := validator.New()
 
 	wh := &WordHandler{
 		wordsService: words,
 		Validator:    v,
+		dictionaryService: dictionaries,
 	}
 
 	v.RegisterValidation("language", isValidLanguage)
+	v.RegisterValidation("correct", isCorrectWord)
+	v.RegisterValidation("dictionary_exists", wh.dictionaryExists)
 	v.RegisterStructValidation(isIncomingCodesIdentical, domain.Word{})
 	
 	return wh
@@ -44,6 +49,26 @@ func isValidLanguage(fl validator.FieldLevel) bool {
 	case constants.Russian, constants.English:
 		return true 
 	default:
+		return false
+	}
+}
+
+func isCorrectWord(fl validator.FieldLevel) bool {
+	value := fl.Field().String()
+
+	re := regexp.MustCompile(`[!@#$^&*()]`)
+
+	return !re.MatchString(value)
+}
+
+func (wh *WordHandler) dictionaryExists(fl validator.FieldLevel) bool {
+	value := fl.Field().Int()
+
+	_, err := wh.dictionaryService.GetByID(value)
+
+	if err == nil {
+		return true 
+	} else {
 		return false
 	}
 }

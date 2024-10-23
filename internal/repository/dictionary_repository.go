@@ -30,7 +30,7 @@ func (d *Dictionaries) Create(dictionary domain.Dictionary) (domain.Dictionary, 
 
 func (d *Dictionaries) GetByID(id int64) (domain.Dictionary, error) {
 	var dictionary domain.Dictionary
-	err := d.db.QueryRow("SELECT id, name, user_id FROM dictionaries WHERE id=$1", id).
+	err := d.db.QueryRow("SELECT id, name, description, user_id FROM dictionaries WHERE id=$1", id).
 		Scan(
 			&dictionary.ID,
 			&dictionary.Name,

@@ -45,7 +45,7 @@ func main() {
 
 	userHandler := handler.NewUserHandler(userService)
 	dictionaryHandler := handler.NewDictionaryHandler(dictionaryService)
-	wordHandler := handler.NewWordHandler(wordService)
+	wordHandler := handler.NewWordHandler(wordService, dictionaryService)
 
 	router := gin.Default()
 
