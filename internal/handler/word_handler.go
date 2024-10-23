@@ -32,7 +32,8 @@ func NewWordHandler(words Words) *WordHandler {
 	}
 
 	v.RegisterValidation("language", isValidLanguage)
-
+	v.RegisterStructValidation(isIncomingCodesIdentical, domain.Word{})
+	
 	return wh
 }
 
@@ -44,6 +45,20 @@ func isValidLanguage(fl validator.FieldLevel) bool {
 		return true 
 	default:
 		return false
+	}
+}
+
+func isIncomingCodesIdentical(sl validator.StructLevel) {
+	word := sl.Current().Interface().(domain.Word)
+
+	if word.WordLanguageCode == word.TranslationWordLanguageCode {
+		sl.ReportError(
+			word.WordLanguageCode,      
+			"WordLanguageCode",      
+			"WordLanguageCode",          
+			"identicalLanguageCodes",
+			"",
+		)
 	}
 }
 
@@ -66,7 +81,7 @@ func (wh *WordHandler) CreateWord(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	_, err := wh.wordsService.Create(word)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
