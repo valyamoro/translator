@@ -7,7 +7,7 @@ type DictionariesRepository interface {
 	GetByID(id int64) (domain.Dictionary, error)
 	GetAll() ([]domain.Dictionary, error)
 	Delete(id int64) (domain.Dictionary, error)
-	Update(id int64, inp domain.UpdateDictionaryInput) (domain.Dictionary, error)
+	Update(id int64, inp domain.Dictionary) (domain.Dictionary, error)
 }
 
 type Dictionaries struct {
@@ -36,6 +36,6 @@ func (d *Dictionaries) Delete(id int64) (domain.Dictionary, error) {
 	return d.repo.Delete(id)
 }
 
-func (d *Dictionaries) Update(id int64, inp domain.UpdateDictionaryInput) (domain.Dictionary, error) {
-	return d.repo.Update(id, inp)
+func (d *Dictionaries) Update(id int64, dictionary domain.Dictionary) (domain.Dictionary, error) {
+	return d.repo.Update(id, dictionary)
 }

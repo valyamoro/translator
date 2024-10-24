@@ -12,7 +12,7 @@ type Dictionaries interface {
 	GetByID(id int64) (domain.Dictionary, error)
 	GetAll() ([]domain.Dictionary, error)
 	Delete(id int64) (domain.Dictionary, error)
-	Update(id int64, inp domain.UpdateDictionaryInput) (domain.Dictionary, error)
+	Update(id int64, inp domain.Dictionary) (domain.Dictionary, error)
 }
 
 type DictionaryHandler struct {
@@ -125,17 +125,24 @@ func (dh *DictionaryHandler) UpdateDictionary(c *gin.Context) {
 		return
 	}
 
-	var inp domain.UpdateDictionaryInput
-	if err := c.ShouldBindJSON(&inp); err != nil {
+	var dictionary domain.Dictionary
+	if err := c.ShouldBindJSON(&dictionary); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err = dh.dictionariesService.Update(id, inp)
+	if err := dh.Validator.Struct(dictionary); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return 
+	}
+
+	dictionary.ID = id 
+	
+	_, err = dh.dictionariesService.Update(id, dictionary)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, dictionary)
 }

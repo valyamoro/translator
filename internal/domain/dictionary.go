@@ -6,10 +6,3 @@ type Dictionary struct {
 	Description string `json:"description" validate:"max=255"`
 	UserID      int64  `json:"user_id" validate:"user_exists"`
 }
-
-type UpdateDictionaryInput struct {
-	ID          *int64  `json:"id"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	UserID      *int64  `json:"user_id"`
-}

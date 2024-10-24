@@ -83,12 +83,12 @@ func (d *Dictionaries) Delete(id int64) (domain.Dictionary, error) {
 	return dictionary, err
 }
 
-func (d *Dictionaries) Update(id int64, inp domain.UpdateDictionaryInput) (domain.Dictionary, error) {
+func (d *Dictionaries) Update(id int64, dictionary domain.Dictionary) (domain.Dictionary, error) {
 	_, err := d.db.Exec(
 		"UPDATE dictionaries SET name=$1, description=$2, user_id=$3 WHERE id=$4",
-		inp.Name,
-		inp.Description,
-		inp.UserID,
+		dictionary.Name,
+		dictionary.Description,
+		dictionary.UserID,
 		id,
 	)
 	if err != nil {
