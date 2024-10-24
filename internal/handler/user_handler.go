@@ -38,13 +38,9 @@ func NewUserHandler(users Users) *UserHandler {
 
 func (uh *UserHandler) userExists(fl validator.FieldLevel) bool {
     username := fl.Field().String()
-    _, err := uh.UsersService.GetByUsername(username)
+	_, err := uh.UsersService.GetByUsername(username)
 
-    if err == nil {
-        return false 
-    }
-
-    return false 
+    return err == nil
 }
 
 func (uh *UserHandler) InitRoutes(router *gin.Engine) {
