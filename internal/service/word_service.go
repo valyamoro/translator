@@ -7,7 +7,7 @@ type WordsRepository interface {
 	GetByID(id int64) (domain.Word, error)
 	GetAll() ([]domain.Word, error)
 	Delete(id int64) (domain.Word, error)
-	Update(id int64, inp domain.UpdateWordInput) (domain.Word, error)
+	Update(id int64, word domain.Word) (domain.Word, error)
 }
 
 type Words struct {
@@ -36,6 +36,6 @@ func (w *Words) Delete(id int64) (domain.Word, error) {
 	return w.repo.Delete(id)
 }
 
-func (w *Words) Update(id int64, inp domain.UpdateWordInput) (domain.Word, error) {
-	return w.repo.Update(id, inp)
+func (w *Words) Update(id int64, word domain.Word) (domain.Word, error) {
+	return w.repo.Update(id, word)
 }

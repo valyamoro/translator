@@ -109,14 +109,14 @@ func (w *Words) Delete(id int64) (domain.Word, error) {
 	return word, err
 }
 
-func (w *Words) Update(id int64, inp domain.UpdateWordInput) (domain.Word, error) {
+func (w *Words) Update(id int64, word domain.Word) (domain.Word, error) {
 	_, err := w.db.Exec(
 		`UPDATE words SET 
                  word=$1,
                  translation_word=$2
                  WHERE id=$3`,
-		inp.Word,
-		inp.TranslationWord,
+		word.Word,
+		word.TranslationWord,
 		id,
 	)
 

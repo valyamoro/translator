@@ -15,7 +15,7 @@ type Words interface {
 	GetByID(id int64) (domain.Word, error)
 	GetAll() ([]domain.Word, error)
 	Delete(id int64) (domain.Word, error)
-	Update(id int64, inp domain.UpdateWordInput) (domain.Word, error)
+	Update(id int64, word domain.Word) (domain.Word, error)
 }
 
 type WordHandler struct {
@@ -155,7 +155,7 @@ func (wh *WordHandler) DeleteWord(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, id)
 }
 
 func (wh *WordHandler) UpdateWord(c *gin.Context) {
@@ -165,17 +165,23 @@ func (wh *WordHandler) UpdateWord(c *gin.Context) {
 		return
 	}
 
-	var inp domain.UpdateWordInput
-	if err := c.ShouldBindJSON(&inp); err != nil {
+	var word domain.Word
+	if err := c.ShouldBindJSON(&word); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if err := wh.Validator.Struct(word); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return 
+	}
 
-	_, err = wh.wordsService.Update(id, inp)
+	word.ID = id 
+
+	_, err = wh.wordsService.Update(id, word)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, word)
 }
