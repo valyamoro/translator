@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/valyamoro/internal/handler"
 	"github.com/valyamoro/internal/repository"
 	"github.com/valyamoro/internal/service"
 	"github.com/valyamoro/pkg/database"
-	"os"
-	"strconv"
 )
 
 func main() {
